@@ -1,3 +1,10 @@
+# improvements
+
+lots of repetitions, redundancy.
+    - file being opened/closed
+    - reading file size
+    - reading the json
+
 # syntax
 
 ```sh

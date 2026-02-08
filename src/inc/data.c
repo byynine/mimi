@@ -10,7 +10,7 @@ typedef struct reminder
 
 int init_json()
 {
-    FILE* json = fopen("mimi.json", "w");
+    FILE* json = fopen("mimi.json", "a");
     if (json == NULL) return 1;
 
     fseek(json, 0, SEEK_END);

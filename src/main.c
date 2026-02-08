@@ -3,34 +3,47 @@
 // TODO: get rid of magic numbers; e.g buffer sizes
 
 // TODO: function for extracting contents of mimi.json
-int read_json(long* index_out, char* desc_out)
+int read_json(long* indices_out[], char* descs_out[])
 {
     FILE* json = fopen("mimi.json", "r");
     if (json == NULL) return 1;
 
-    long index;
-    char description[32];
+    long indices[512];
+    char descs[512][32];
+    size_t indices_i = 0;
+    size_t descs_i = 0;
 
     char line_buf[64];
 
     // TODO: FIX not adding actual indices and descriptions
+    // TODO: REMOVE magic string in sscanf
     // read mimi.json and input values into index and description
     while (fgets(line_buf, sizeof(line_buf), json))
     {
+        long index;
+        char desc[32];
+
         if (sscanf(line_buf, "        \"index\": \"%ld\"", &index) == 1)
         {
             fgets(line_buf, sizeof(line_buf), json);
-            sscanf(line_buf, "        \"description\": \"%[^\"]\"", description);
-            // printf("read index=%ld, description=%s\n", index, description);
+            sscanf(line_buf, "        \"description\": \"%[^\"]\"", desc);
         }
+
+        size_t i = 0;
+        for (; desc[i] != '\0'; i++) descs[descs_i][i] = desc[i];
+        descs[descs_i++][i+1] = '\0';
+
+        indices[indices_i++] = index;
     }
 
-    *index_out = index;
-    if (snprintf(desc_out, sizeof(description), "%s", description) < 0)
-    {
-        printf("error while reading json with snprintf");
-        return 1;
-    }
+    *indices_out = indices;
+    for (size_t i = 0; i < descs_i; i++) snprintf(descs_out[i], 32, "%s", descs[i]);
+
+    // if (snprintf(desc_out, sizeof(description), "%s", description) < 0)
+    // {
+    //     printf("error while reading json with snprintf");
+    //     return 1;
+    // }
 
     fclose(json);
     return 0;
@@ -40,16 +53,20 @@ int read_json(long* index_out, char* desc_out)
 //       reading file contents and overall code.
 int main(int argc, char* argv[])
 {
-    if (argc != 2) return 1;
+    if (argc != 2)
+    {
+        printf("Usage: mimi COMMAND\n    Options:\n  remind    add a reminder\n  list    list all reminders\n");
+        return 1;
+    }
 
     init_json();
 
     if (strequal(argv[1], "list")) // TODO: isolate this into a function
     {
-        long index;
-        char description[32];
+        long indices[512];
+        char descs[512][32];
 
-        int r = read_json(&index, description);
+        int r = read_json(&indices, descs);
 
         printf("r: %d\n", r);
         printf("index: %ld\ndescription: %s\n", index, description);
@@ -71,6 +88,7 @@ int main(int argc, char* argv[])
 
         // fclose(file);
     }
+    // APPEND A REMINDER
     else if (strequal(argv[1], KW_REMIND)) // TODO: isolate this into a function
     {
         reminder rmn = {
@@ -78,7 +96,7 @@ int main(int argc, char* argv[])
             .description = "null",
         };
 
-        FILE* file = fopen("mimi.json", "r+");
+        FILE* file = fopen("mimi.json", "w+");
         if (!file) return 1;
 
         fseek(file, 0, SEEK_END);

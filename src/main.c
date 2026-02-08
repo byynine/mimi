@@ -1,7 +1,8 @@
 #include "inc/minc.c"
 
-const char* REMINDER_FORMAT_IN  = "{\n    \"index\": \"%d\",\n    \"description\": \"%[^\"]\"\n}";
-const char* REMINDER_FORMAT_OUT = "{\n    \"index\": \"%d\",\n    \"description\": \"%s\"\n}";
+const char* REMINDER_FORMAT_IN  = "    {\n        \"index\": \"%d\",\n        \"description\": \"%[^\"]\"\n    }";
+const char* REMINDER_FORMAT_OUT0 = "    {\n        \"index\": \"%d\",\n        \"description\": \"%s\"\n    }";
+const char* REMINDER_FORMAT_OUT1 = "    {\n        \"index\": \"%d\",\n        \"description\": \"%s\"\n    },";
 
 typedef struct reminder
 {
@@ -18,15 +19,15 @@ int main(int argc, char* argv[])
     if (mimi == NULL) return 1;
 
     fseek(mimi, 0, SEEK_END);
-    long filesize = ftell(mimi);
+    long mfs = ftell(mimi);
     rewind(mimi);
-    
-    char buf[] = "{\n}\n";
-    fwrite(buf, 1, sizeof(buf), mimi);
 
-    fclose(mimi);
-
-    size_t remind_index = 0;
+    if (mfs == 0)
+    {
+        char buf[] = "{\n}\n";
+        fwrite(buf, 1, sizeof(buf), mimi);
+        fclose(mimi);
+    }
 
     if (strequal(argv[1], "list"))
     {
@@ -52,7 +53,7 @@ int main(int argc, char* argv[])
         // remind "foo bar" date whatever
 
         reminder rmn = {
-            .index = remind_index,
+            .index = 0,
             .description = "null",
         };
 
@@ -70,14 +71,16 @@ int main(int argc, char* argv[])
         buffer[filesize] = '\0';
 
         // Move to position 1 (after first character)
-        fseek(file, 1, SEEK_SET);
+        fseek(file, 2, SEEK_SET);
 
-        fprintf(file, REMINDER_FORMAT_OUT, rmn.index, rmn.description);
+        if (filesize < 6)
+            fprintf(file, REMINDER_FORMAT_OUT0, rmn.index, rmn.description);
+        else
+            fprintf(file, REMINDER_FORMAT_OUT1, rmn.index, rmn.description);
 
         // Write the rest of original content
         fwrite(buffer + 1, 1, filesize - 1, file);
 
-        remind_index++;
         fclose(file);
     }
 

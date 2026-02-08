@@ -1,37 +1,5 @@
 #include "inc/minc.c"
 
-// TODO: MOVE TO inc/
-const char* REMINDER_FORMAT_IN  = "    {\n        \"index\": \"%ld\",\n        \"description\": \"%[^\"]\"\n    }";
-const char* REMINDER_FORMAT_OUT0 = "    {\n        \"index\": \"%ld\",\n        \"description\": \"%s\"\n    }";
-const char* REMINDER_FORMAT_OUT1 = "    {\n        \"index\": \"%ld\",\n        \"description\": \"%s\"\n    },";
-
-// TODO: MOVE TO inc/; add creation date...
-typedef struct reminder
-{
-    size_t index;
-    char description[32];
-} reminder;
-
-// TODO: MOVE TO inc/; add error handling, arguments...
-void init_json()
-{
-    FILE* mimi = fopen("mimi.json", "a");
-    if (mimi == NULL) return;
-
-    fseek(mimi, 0, SEEK_END);
-    long mfs = ftell(mimi);
-    rewind(mimi);
-
-    if (mfs == 0)
-    {
-        char buf[] = "[\n]\n";
-        fwrite(buf, 1, sizeof(buf), mimi);
-        fclose(mimi);
-    }
-
-    return;
-}
-
 int main(int argc, char* argv[])
 {
     if (argc != 2) return 1;

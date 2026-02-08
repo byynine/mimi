@@ -1,4 +1,4 @@
-bld/main: src/main.c | bld
+bld/main: src/main.c src/inc/*.c | bld
 	gcc -o $@ $<
 
 bld:
@@ -9,3 +9,4 @@ run: bld/main
 
 clean:
 	rm -rf bld/
+	rm -f mimi.json

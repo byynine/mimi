@@ -1,5 +1,5 @@
 bld/main: src/main.c src/inc/*.c | bld
-	gcc -o $@ $<
+	gcc -Wall -Wextra -o $@ $<
 
 bld:
 	mkdir -p bld

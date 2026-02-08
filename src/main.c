@@ -1,22 +1,22 @@
 #include "inc/minc.c"
 
-const char* REMINDER_FORMAT_IN  = "    {\n        \"index\": \"%d\",\n        \"description\": \"%[^\"]\"\n    }";
-const char* REMINDER_FORMAT_OUT0 = "    {\n        \"index\": \"%d\",\n        \"description\": \"%s\"\n    }";
-const char* REMINDER_FORMAT_OUT1 = "    {\n        \"index\": \"%d\",\n        \"description\": \"%s\"\n    },";
+// TODO: MOVE TO inc/
+const char* REMINDER_FORMAT_IN  = "    {\n        \"index\": \"%ld\",\n        \"description\": \"%[^\"]\"\n    }";
+const char* REMINDER_FORMAT_OUT0 = "    {\n        \"index\": \"%ld\",\n        \"description\": \"%s\"\n    }";
+const char* REMINDER_FORMAT_OUT1 = "    {\n        \"index\": \"%ld\",\n        \"description\": \"%s\"\n    },";
 
+// TODO: MOVE TO inc/; add creation date...
 typedef struct reminder
 {
     size_t index;
     char description[32];
-    // int cdate[5]; // int cdate[] = { 23, 21, 7, 2, 2026 };
 } reminder;
 
-int main(int argc, char* argv[])
+// TODO: MOVE TO inc/; add error handling, arguments...
+void init_json()
 {
-    if (argc != 2) return 1;
-
     FILE* mimi = fopen("mimi.json", "a");
-    if (mimi == NULL) return 1;
+    if (mimi == NULL) return;
 
     fseek(mimi, 0, SEEK_END);
     long mfs = ftell(mimi);
@@ -24,34 +24,39 @@ int main(int argc, char* argv[])
 
     if (mfs == 0)
     {
-        char buf[] = "{\n}\n";
+        char buf[] = "[\n]\n";
         fwrite(buf, 1, sizeof(buf), mimi);
         fclose(mimi);
     }
 
-    if (strequal(argv[1], "list"))
-    {
-        // TODO: list of reminders
+    return;
+}
 
+int main(int argc, char* argv[])
+{
+    if (argc != 2) return 1;
+
+    init_json();
+
+    if (strequal(argv[1], "list")) // TODO: isolate this into a function
+    {
         FILE* file = fopen("mimi.json", "r");
         if (file == NULL) return 1;
 
-        reminder rmn;
+        char line[64];
+        long index;
+        char description[32];
 
-        fscanf(file, REMINDER_FORMAT_IN, &rmn.index, rmn.description);
-
-        printf("index: %d\ndescription: %s\n", rmn.index, rmn.description);
-        fclose(file);
+        while (fgets(line, sizeof(line), file)) {
+            if (sscanf(line, "        \"index\": \"%ld\"", &index) == 1) {
+                fgets(line, sizeof(line), file); // read next line
+                sscanf(line, "        \"description\": \"%[^\"]\"", description);
+                printf("Parsed index=%ld, description=%s\n", index, description);
+            }
+        }
     }
-    else if (strequal(argv[1], KW_REMIND))
+    else if (strequal(argv[1], KW_REMIND)) // TODO: isolate this into a function
     {
-        // data structure on disk
-        // OVERALL DATA
-        // REMINDERS
-        // 
-        // remind_n N | remind_n 12
-        // remind "foo bar" date whatever
-
         reminder rmn = {
             .index = 0,
             .description = "null",
@@ -60,17 +65,14 @@ int main(int argc, char* argv[])
         FILE* file = fopen("mimi.json", "r+");
         if (!file) return 1;
 
-        // Move to the end to get file size
         fseek(file, 0, SEEK_END);
         long filesize = ftell(file);
-        rewind(file);  // go back to start
+        rewind(file);
 
-        // Read the entire file
         char buffer[filesize + 1];
         fread(buffer, 1, filesize, file);
         buffer[filesize] = '\0';
 
-        // Move to position 1 (after first character)
         fseek(file, 2, SEEK_SET);
 
         if (filesize < 6)

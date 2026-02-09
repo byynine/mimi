@@ -1,6 +1,6 @@
-const char* REMINDER_FORMAT_IN  = "    {\n        \"index\": \"%ld\",\n        \"description\": \"%[^\"]\"\n    }";
-const char* REMINDER_FORMAT_OUT0 = "    {\n        \"index\": \"%ld\",\n        \"description\": \"%s\"\n    }";
-const char* REMINDER_FORMAT_OUT1 = "    {\n        \"index\": \"%ld\",\n        \"description\": \"%s\"\n    },";
+const char* REMINDER_FORMAT_IN  = "{\"index\":\"%ld\",\"description\":\"%[^\"]\"}";
+const char* REMINDER_FORMAT_OUT0 = "{\"index\":\"%ld\",\"description\":\"%s\"}";
+const char* REMINDER_FORMAT_OUT1 = "{\"index\":\"%ld\",\"description\":\"%s\"},";
 
 typedef struct reminder
 {
@@ -19,7 +19,7 @@ int init_json()
 
     if (json_size == 0)
     {
-        char init_buf[] = "[\n]\n";
+        char init_buf[] = "[]\n";
         fwrite(init_buf, 1, sizeof(init_buf), json);
         fclose(json);
     }

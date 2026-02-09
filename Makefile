@@ -1,12 +1,17 @@
-bld/main: src/main.c src/inc/*.c | bld
-	gcc -Wall -Wextra -o $@ $<
+bld/main: src/main.c | bld
+	gcc\
+		-Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wstrict-prototypes\
+		-fsanitize=leak,bounds,address,undefined\
+		-fno-sanitize-recover=all\
+		-g\
+		-fno-omit-frame-pointer\
+		-o $@ $<
 
 bld:
-	mkdir -p bld
+	mkdir bld tmp
 
 run: bld/main
 	@bld/main
 
 clean:
-	rm -rf bld/
-	rm -f mimi.json
+	rm -rf bld tmp

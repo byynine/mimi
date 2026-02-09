@@ -1,121 +1,83 @@
-#include "inc/minc.c"
+#include <stdio.h>
+#include <string.h>
 
-// mimi remind "foo bar"
-// [{ "foo bar" },{ "..." },...]
-// mimi => *reminder on due date*
+// TODO: CHANGE all constants into macros
 
-// TODO: get rid of magic numbers; e.g buffer sizes
+// TODO: (in further versions) change to /home/user/.local/share/mimi/mimi.json
+const char *mimi_data_filepath = "tmp/data";
 
-// TODO: function for extracting contents of mimi.json
-int read_json(long indices_out[], char descs_out[][32])
+// command keywords for when calling from shell
+const char *kw_remind = "remind"; // create a reminder
+const char *kw_list = "list";     // print list of reminders
+
+// serialization i/o formats
+const char *reminder_format_in = "\"%[^\"]\"";
+const char *reminder_format_out = "\"%s\"\n";
+// const char *reminder_format_out_1 = "{\"index\":\"%ld\",\"description\":\"%s\"},";
+
+// [
+// {desc:"foo"},{desc:"awdwa"},{desc:"awae"},
+// {desc:"bar"},
+// {desc:"baz"},
+// {desc:"something"}
+// ]
+
+typedef struct reminder
 {
-    FILE* json = fopen("mimi.json", "r");
-    if (json == NULL) return 1;
+    char desc[64];
+} reminder;
 
-    size_t indices_i = 0;
-    size_t descs_i = 0;
-
-    char line_buf[64];
-
-    // TODO: FIX not adding actual indices and descriptions
-    // TODO: REMOVE magic string in sscanf
-    // read mimi.json and input values into index and description
-    while (fgets(line_buf, sizeof(line_buf), json))
+int main(int argc, char *argv[])
+{
+    // TODO: display reminders when called and return
+    if (argc == 1)
     {
-        long index;
-        char desc[32];
+        FILE* mimi_data = fopen(mimi_data_filepath, "r");
+        if (!mimi_data) return 1;
 
-        if (sscanf(line_buf, "\"index\": \"%ld\"", &index) == 1)
+        reminder rmn;
+        snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);
+        char line_buf[64];
+
+        while (fgets(line_buf, sizeof(line_buf), mimi_data))
         {
-            if (!fgets(line_buf, sizeof line_buf, json)) break;
-            if (sscanf(line_buf, "\"description\": \"%[^\"]\"", desc) == 1)
-            {
-                indices_out[indices_i++] = index;
-                snprintf(descs_out[descs_i++], 32, "%s", desc);
-            }
+            char desc[64];
+            if (sscanf(line_buf, reminder_format_in, &desc) == 1) printf("%s\n", desc);
         }
+
+        return 0;
     }
 
-    // if (snprintf(desc_out, sizeof(description), "%s", description) < 0)
-    // {
-    //     printf("error while reading json with snprintf");
-    //     return 1;
-    // }
+    if (argc > 3) return 2;
 
-    fclose(json);
-    return 0;
-}
-
-// TODO: too much redundancy with file open/close, file size reading,
-//       reading file contents and overall code.
-int main(int argc, char* argv[])
-{
-    if (argc != 2)
+    // this appends a reminder object to data
+    if (!strcmp(argv[1], kw_remind))
     {
-        printf("Usage: mimi COMMAND\nCommands:\n  remind    add a reminder\n  list      list all reminders\n");
-        return 1;
+        if (argc != 3) return 3;
+        reminder rmn;
+        snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);
+
+        FILE* mimi_data = fopen(mimi_data_filepath, "a");
+        if (!mimi_data) return 4;
+
+        fprintf(mimi_data, reminder_format_out, rmn.desc);
     }
-
-    // TODO: REMOVE check if cache has been created in init_json and implement separately.
-    //       otherwise init_json goes beyond its scope.
-    init_json();
-
-    if (strequal(argv[1], "list")) // TODO: isolate this into a function
+    // this prints the reminders in data
+    else if (!strcmp(argv[1], kw_list))
     {
-        long indices[512];
-        char descs[512][32];
+        FILE* mimi_data = fopen(mimi_data_filepath, "r");
+        if (!mimi_data) return 5;
 
-        int r = read_json(indices, descs);
+        reminder rmn;
+        snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);
 
-        printf("r: %d\n", r);
-        for (int i = 0; i < 10; i++)
-            printf("%ld ", indices[i]);
+        char line_buf[64];
 
-        // FILE* file = fopen("mimi.json", "r");
-        // if (file == NULL) return 1;
-
-        // char line[64];
-        // long index;
-        // char description[32];
-
-        // while (fgets(line, sizeof(line), file)) {
-        //     if (sscanf(line, "        \"index\": \"%ld\"", &index) == 1) {
-        //         fgets(line, sizeof(line), file);
-        //         sscanf(line, "        \"description\": \"%[^\"]\"", description);
-        //         printf("read index=%ld, description=%s\n", index, description);
-        //     }
-        // }
-
-        // fclose(file);
-    }
-    // APPEND A REMINDER
-    else if (strequal(argv[1], KW_REMIND)) // TODO: isolate this into a function
-    {
-        reminder rmn = {
-            .index = 0,
-            .description = "null",
-        };
-
-        FILE* file = fopen("mimi.json", "w+");
-        if (!file) return 1;
-
-        fseek(file, 0, SEEK_END);
-        long filesize = ftell(file);
-        rewind(file);
-
-        char buffer[filesize + 1];
-        fread(buffer, 1, filesize, file);
-        buffer[filesize] = '\0';
-
-        fseek(file, 1, SEEK_SET);
-
-        if (filesize < 4)
-            fprintf(file, REMINDER_FORMAT_OUT0, rmn.index, rmn.description);
-        else
-            fprintf(file, REMINDER_FORMAT_OUT1, rmn.index, rmn.description);
-
-        fwrite(buffer + 1, 1, filesize - 1, file);
-        fclose(file);
+        while (fgets(line_buf, sizeof(line_buf), mimi_data))
+        {
+            char desc[64];
+            if (sscanf(line_buf, reminder_format_in, &desc) == 1) printf("%s\n", desc);
+        }
     }
 
     return 0;

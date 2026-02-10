@@ -3,28 +3,18 @@
 #include <string.h>
 #include <sys/stat.h>
 
-// TODO: CHANGE all constants into macros
+// TODO: add error messages and clean up return values
 
-// TODO: (in further versions) change to /home/user/.local/share/mimi/data
-// const char *mimi_data_filepath = "tmp/data";
-const char *mimi_data_filepath = "/home/nine/.local/share/mimi/data";
-const char *mimi_data_dirpath = "/home/nine/.local/share/mimi";
+#define mimi_data_filepath "/home/nine/.local/share/mimi/data"
+#define mimi_data_dirpath "/home/nine/.local/share/mimi"
 
 // command keywords for when calling from shell
-const char *kw_remind = "remind"; // create a reminder
-const char *kw_list = "list";     // print list of reminders
+#define kw_remind "remind"
+#define kw_list "list"
 
 // serialization i/o formats
-const char *reminder_format_in = "\"%[^\"]\"";
-const char *reminder_format_out = "\"%s\"\n";
-// const char *reminder_format_out_1 = "{\"index\":\"%ld\",\"description\":\"%s\"},";
-
-// [
-// {desc:"foo"},{desc:"awdwa"},{desc:"awae"},
-// {desc:"bar"},
-// {desc:"baz"},
-// {desc:"something"}
-// ]
+#define reminder_format_in "\"%63[^\"]\"\n"
+#define reminder_format_out "\"%s\"\n"
 
 typedef struct reminder
 {
@@ -41,12 +31,12 @@ int main(int argc, char *argv[])
 
         reminder rmn;
         snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);
-        char line_buf[64];
 
+        char line_buf[128];
         while (fgets(line_buf, sizeof(line_buf), mimi_data))
         {
             char desc[64];
-            if (sscanf(line_buf, reminder_format_in, &desc) == 1) printf("%s", desc);
+            if (sscanf(line_buf, reminder_format_in, desc) == 1) printf("%s\n", desc);
         }
 
         return 0;
@@ -61,17 +51,17 @@ int main(int argc, char *argv[])
     {
         if (argc != 3) return 3;
 
-        if (strlen(argv[2]) > 62)
+        reminder rmn;
+
+        if (strlen(argv[2]) >= sizeof(rmn.desc))
         {
             printf("description too big\n");
             return 1;
         }
 
-        reminder rmn;
         snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);
 
         if (mkdir(mimi_data_dirpath, 0755) == -1) if (errno != EEXIST) return -1;
-
         FILE* mimi_data = fopen(mimi_data_filepath, "a");
         if (!mimi_data) return 4;
 
@@ -87,12 +77,11 @@ int main(int argc, char *argv[])
         reminder rmn;
         snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);
 
-        char line_buf[64];
-
+        char line_buf[128];
         while (fgets(line_buf, sizeof(line_buf), mimi_data))
         {
             char desc[64];
-            if (sscanf(line_buf, reminder_format_in, &desc) == 1) printf("%s", desc);
+            if (sscanf(line_buf, reminder_format_in, desc) == 1) printf("%s\n", desc);
         }
     }
 

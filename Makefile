@@ -8,10 +8,11 @@ bld/main: src/main.c | bld
 		-o $@ $<
 
 bld:
-	mkdir bld tmp
+	mkdir bld
 
 run: bld/main
 	@bld/main
 
 clean:
-	rm -rf bld tmp
+	rm -rf bld
+	rm -f /home/nine/.local/share/mimi/data

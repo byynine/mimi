@@ -5,6 +5,7 @@
 
 // TODO: add error messages and clean up return values
 
+// filepaths for storing reminder data
 #define mimi_data_filepath "/home/nine/.local/share/mimi/data"
 #define mimi_data_dirpath "/home/nine/.local/share/mimi"
 

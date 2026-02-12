@@ -3,7 +3,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-// TODO: add error messages and clean up return values
+// TODO: ADD indices to reminders and add remove option
 
 // filepaths for storing reminder data
 #define mimi_data_filepath "/home/nine/.local/share/mimi/data"
@@ -24,11 +24,11 @@ typedef struct reminder
 
 int main(int argc, char *argv[])
 {
-    // TODO: display reminders when called and return
+    // display reminders when called and return
     if (argc == 1)
     {
         FILE* mimi_data = fopen(mimi_data_filepath, "r");
-        if (!mimi_data) return 1;
+        if (!mimi_data) { printf("error: couldn't read file %s\n", mimi_data_filepath); return 1; }
 
         reminder rmn;
         snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);
@@ -43,28 +43,34 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (argc > 3) return 2;
+    if (argc > 3) { printf("error: too many arguments\n"); return 1; }
 
     // TODO: isolate into function
-    // TODO: add a check for hitting max amount of characters (bigger than buffer)
+    // TODO: ADD a check for hitting max amount of characters (bigger than buffer)
     // this appends a reminder object to data
     if (!strcmp(argv[1], kw_remind))
     {
-        if (argc != 3) return 3;
+        if (argc != 3) { printf("error: command %s expects one more argument\n", kw_remind)}
 
         reminder rmn;
 
         if (strlen(argv[2]) >= sizeof(rmn.desc))
         {
-            printf("description too big\n");
+            printf("error: description too big\n");
             return 1;
         }
 
         snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);
 
-        if (mkdir(mimi_data_dirpath, 0755) == -1) if (errno != EEXIST) return -1;
+        if (mkdir(mimi_data_dirpath, 0755) == -1)
+            if (errno != EEXIST)
+            {
+                printf("error: failure when creating directory %s", mimi_data_dirpath);
+                return 1;
+            }
+
         FILE* mimi_data = fopen(mimi_data_filepath, "a");
-        if (!mimi_data) return 4;
+        if (!mimi_data) { printf("error: couldn't append to file %s\n", mimi_data_filepath) return 1; }
 
         fprintf(mimi_data, reminder_format_out, rmn.desc);
     }
@@ -73,7 +79,7 @@ int main(int argc, char *argv[])
     else if (!strcmp(argv[1], kw_list))
     {
         FILE* mimi_data = fopen(mimi_data_filepath, "r");
-        if (!mimi_data) return 5;
+        if (!mimi_data) { printf("error: couldn't read file %s", mimi_data_filepath); return 1; }
 
         reminder rmn;
         snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);

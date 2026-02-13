@@ -46,11 +46,10 @@ int main(int argc, char *argv[])
     if (argc > 3) { printf("error: too many arguments\n"); return 1; }
 
     // TODO: isolate into function
-    // TODO: ADD a check for hitting max amount of characters (bigger than buffer)
     // this appends a reminder object to data
     if (!strcmp(argv[1], kw_remind))
     {
-        if (argc != 3) { printf("error: command %s expects one more argument\n", kw_remind)}
+        if (argc != 3) { printf("error: command %s expects one more argument\n", kw_remind); }
 
         reminder rmn;
 
@@ -70,7 +69,7 @@ int main(int argc, char *argv[])
             }
 
         FILE* mimi_data = fopen(mimi_data_filepath, "a");
-        if (!mimi_data) { printf("error: couldn't append to file %s\n", mimi_data_filepath) return 1; }
+        if (!mimi_data) { printf("error: couldn't append to file %s\n", mimi_data_filepath); return 1; }
 
         fprintf(mimi_data, reminder_format_out, rmn.desc);
     }
@@ -90,6 +89,11 @@ int main(int argc, char *argv[])
             char desc[64];
             if (sscanf(line_buf, reminder_format_in, desc) == 1) printf("%s\n", desc);
         }
+    }
+    else
+    {
+        printf("error: unknown command\n");
+        return 1;
     }
 
     return 0;

@@ -45,8 +45,6 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (argc > 4) { printf("error: too many arguments\n"); return 1; }
-
     // this appends a reminder object to data
     if (!strcmp(argv[1], CMD_REMIND0) || !strcmp(argv[1], CMD_REMIND1))
     {

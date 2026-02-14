@@ -45,12 +45,12 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (argc > 3) { printf("error: too many arguments\n"); return 1; }
+    if (argc > 4) { printf("error: too many arguments\n"); return 1; }
 
     // this appends a reminder object to data
     if (!strcmp(argv[1], CMD_REMIND0) || !strcmp(argv[1], CMD_REMIND1))
     {
-        if (argc != 3) { printf("error: command %s expects one more argument\n", CMD_REMIND0); return 1; }
+        if (argc != 3) { printf("error: invalid argument count\n"); return 1; }
 
         reminder rmn;
 
@@ -77,6 +77,8 @@ int main(int argc, char *argv[])
     }
     else if (!strcmp(argv[1], CMD_LIST0) || !strcmp(argv[1], CMD_LIST1))
     {
+        if (argc != 2) { printf("error: invalid argument count\n"); return 1; }
+
         FILE* mimi_data = fopen(DATA_FILEPATH, "r");
         if (!mimi_data) { printf("error: couldn't read file %s\n", DATA_FILEPATH); return 1; }
 
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
     }
     else if (!strcmp(argv[1], CMD_DELETE0) || !strcmp(argv[1], CMD_DELETE1))
     {
-        if (argc != 3) { printf("error: command %s expects one more argument\n", CMD_DELETE0); return 1; }
+        if (argc != 3) { printf("error: invalid argument count\n"); return 1; }
 
         char *end;
         long argidx = strtol(argv[2], &end, 10);

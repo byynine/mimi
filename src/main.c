@@ -10,8 +10,8 @@
 #define MIMI_DATA_DIRPATH "/home/nine/.local/share/mimi"
 
 // command keywords for when calling from shell
-#define CMD_REMIND "remind"
-#define CMD_LIST "list"
+#define CMD_REMIND0 "remind"
+#define CMD_REMIND1 "r"
 
 // serialization i/o formats
 #define REMINDER_FORMAT_IN "\"%63[^\"]\"\n"
@@ -47,9 +47,9 @@ int main(int argc, char *argv[])
 
     // TODO: isolate into function
     // this appends a reminder object to data
-    if (!strcmp(argv[1], CMD_REMIND))
+    if (!strcmp(argv[1], CMD_REMIND0) || !strcmp(argv[1], CMD_REMIND1))
     {
-        if (argc != 3) { printf("error: command %s expects one more argument\n", CMD_REMIND); }
+        if (argc != 3) { printf("error: command %s expects one more argument\n", CMD_REMIND0); return 1; }
 
         reminder rmn;
 
@@ -72,23 +72,6 @@ int main(int argc, char *argv[])
         if (!mimi_data) { printf("error: couldn't append to file %s\n", MIMI_DATA_FILEPATH); return 1; }
 
         fprintf(mimi_data, REMINDER_FORMAT_OUT, rmn.desc);
-    }
-    // this prints the reminders in data
-    // TODO: isolate into function
-    else if (!strcmp(argv[1], CMD_LIST))
-    {
-        FILE* mimi_data = fopen(MIMI_DATA_FILEPATH, "r");
-        if (!mimi_data) { printf("error: couldn't read file %s", MIMI_DATA_FILEPATH); return 1; }
-
-        reminder rmn;
-        snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);
-
-        char line_buf[128];
-        while (fgets(line_buf, sizeof(line_buf), mimi_data))
-        {
-            char desc[64];
-            if (sscanf(line_buf, REMINDER_FORMAT_IN, desc) == 1) printf("%s\n", desc);
-        }
     }
     else
     {

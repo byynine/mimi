@@ -9,7 +9,7 @@
 #define MIMI_DATA_FILEPATH "/home/nine/.local/share/mimi/data"
 #define MIMI_DATA_DIRPATH "/home/nine/.local/share/mimi"
 
-// command keywords for when calling from shell
+// commands for when calling from shell
 #define CMD_REMIND0 "remind"
 #define CMD_REMIND1 "r"
 
@@ -19,6 +19,7 @@
 
 typedef struct reminder
 {
+    size_t idx;
     char desc[64];
 } reminder;
 
@@ -29,9 +30,6 @@ int main(int argc, char *argv[])
     {
         FILE* mimi_data = fopen(MIMI_DATA_FILEPATH, "r");
         if (!mimi_data) { printf("error: couldn't read file %s\n", MIMI_DATA_FILEPATH); return 1; }
-
-        reminder rmn;
-        snprintf(rmn.desc, sizeof(rmn.desc), "%s", argv[2]);
 
         char line_buf[128];
         while (fgets(line_buf, sizeof(line_buf), mimi_data))

@@ -15,5 +15,5 @@ run: bld/main
 
 clean:
 	rm -rf bld
-	rm -f /home/nine/.local/share/mimi/data
-	rm -f /home/nine/.local/share/mimi/temp
+	rm -f ~/.local/share/mimi/data
+	rm -f ~/.local/share/mimi/temp

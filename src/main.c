@@ -11,6 +11,10 @@
 #define DATA_TEMP_FILEPATH "/home/nine/.local/share/mimi/temp"
 
 // Commands for when calling from shell.
+#define CMD_HELP0   "help"
+#define CMD_HELP1   "h"
+#define CMD_HELP2   "-h"
+#define CMD_HELP3   "--help"
 #define CMD_REMIND0 "remind"
 #define CMD_REMIND1 "r"
 #define CMD_LIST0   "list"
@@ -52,8 +56,33 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    // Print usage.
+    if (!strcmp(argv[1], CMD_HELP0) ||
+        !strcmp(argv[1], CMD_HELP1) ||
+        !strcmp(argv[1], CMD_HELP2) ||
+        !strcmp(argv[1], CMD_HELP3))
+    {
+        const char *usage = 
+            "Usage: mimi [option] COMMAND\n"
+            "A terminal reminder. Run without arguments to print due reminders.\n\n"
+            "Options:\n"
+            "  -h, --help    Print this message.\n\n"
+            "Commands:\n"
+            "  r, remind     Create a reminder.\n"
+            "                Usage: mimi remind DESC TIME\n"
+            "                DESC  Description of the reminder.\n"
+            "                TIME  Time in seconds until the reminder goes off.\n\n"
+            "  d, delete     Delete a reminder.\n"
+            "                Usage: mimi delete INDEX\n"
+            "                INDEX  Index of the reminder to delete.\n\n"
+            "  l, list       List all reminders.\n"
+            "                Usage: mimi list\n"
+            "  h, help       Print this message.\n"
+            "                Usage: mimi help\n";
+        printf("%s", usage);
+    }
     // Appends a reminder object to data.
-    if (!strcmp(argv[1], CMD_REMIND0) || !strcmp(argv[1], CMD_REMIND1))
+    else if (!strcmp(argv[1], CMD_REMIND0) || !strcmp(argv[1], CMD_REMIND1))
     {
         if (argc != 4) { printf("error: invalid argument count\n"); return 1; }
 

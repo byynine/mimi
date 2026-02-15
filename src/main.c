@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
             time_t rtime;
             if (sscanf(line_buf, DATA_FORMAT_IN, desc, &rtime) == 2)
                 if (ctime > rtime)
-                    printf("reminder\t%s\n", desc);
+                    printf("reminder    %s\n", desc);
         }
 
         fclose(mimi_data);
@@ -163,7 +163,12 @@ int main(int argc, char *argv[])
             char desc[64];
             time_t rtime;
             if (sscanf(line_buf, DATA_FORMAT_IN, desc, &rtime) == 2)
-                printf("%zu\t%s\t%ld\n", idx++, desc, (long)rtime);
+            {
+                char buf[64];
+                struct tm *tm_info = localtime(&rtime);
+                strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", tm_info);
+                printf("%zu    %s    %s\n", idx++, buf, desc);
+            }
         }
 
         fclose(mimi_data);

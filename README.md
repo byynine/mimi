@@ -4,4 +4,5 @@ Mimi, a terMInal reMInder.
 
 ## Linux
 
-Run `make` after cloning the repository.
+Run `make`.
+Compiled file path is `./bld/main`.

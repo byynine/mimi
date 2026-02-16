@@ -64,21 +64,19 @@ int main(int argc, char *argv[])
     {
         const char *usage = 
             "Usage: mimi [option] COMMAND\n"
-            "A terminal reminder. Run without arguments to print due reminders.\n\n"
+            "A terminal reminder. Run without arguments to print due reminders.\n"
             "Options:\n"
-            "  -h, --help    Print this message.\n\n"
+            "  -h, --help    Print this message.\n"
             "Commands:\n"
             "  r, remind     Create a reminder.\n"
             "                Usage: mimi remind DESC TIME\n"
             "                DESC  Description of the reminder.\n"
-            "                TIME  Time in seconds until the reminder goes off.\n\n"
+            "                TIME  Time in seconds until the reminder goes off.\n"
             "  d, delete     Delete a reminder.\n"
             "                Usage: mimi delete INDEX\n"
-            "                INDEX  Index of the reminder to delete.\n\n"
+            "                INDEX  Index of the reminder to delete.\n"
             "  l, list       List all reminders.\n"
-            "                Usage: mimi list\n"
-            "  h, help       Print this message.\n"
-            "                Usage: mimi help\n";
+            "  h, help       Print this message.\n";
         printf("%s", usage);
     }
     // Appends a reminder object to data.

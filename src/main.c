@@ -4,6 +4,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <limits.h>
+#include <ctype.h>
 
 // Filepaths for storing reminder data.
 #define DATA_FILEPATH      "/home/nine/.local/share/mimi/data"
@@ -79,19 +81,85 @@ int main(int argc, char *argv[])
             "  h, help       Print this message.\n";
         printf("%s", usage);
     }
+    // TODO: ADD functioality to make remind go off in 1 hour, 1 day, etc.
+    //      Syntax: mimi remind "Foo bar." 1h
+    //              mimi remind "Foo bar." 50m
     // Appends a reminder object to data.
     else if (!strcmp(argv[1], CMD_REMIND0) || !strcmp(argv[1], CMD_REMIND1))
     {
         if (argc != 4) { printf("error: invalid argument count\n"); return 1; }
 
-        // Get current data in seconds and then add specified seconds from argument.
-        char *end;
-        long in_rtime = strtol(argv[3], &end, 10);
-        if (*end != '\0')
+        // in_rtime is the amount of time that will be added to current time, and when the reminder will go off.
+        // in_ftime is the formmating of time. It's s, m, h, d, w, o, y, which maps to second(s) -> year(s)
+        long in_rtime = 0;
+        char in_ftime = 'M';
+
+        // Parse argv[3] (reminder time).
+        for (size_t i = 0; argv[3][i] != '\0'; i++)
         {
-            printf("error: command %s argument is not a valid number\n", CMD_REMIND0);
-            return 1;
+            // Check if the character is a digit or not.
+            // If it is not, store it in in_ftime.
+            if (!isdigit((unsigned char)argv[3][i]))
+            {
+                if (in_ftime != 'M')
+                {
+                    printf("error: invalid time format\n");
+                    return 1;
+                }
+                in_ftime = argv[3][i];
+                continue;
+            }
+
+            int digit = argv[3][i] - '0';
+
+            // Check for overflow.
+            if (in_rtime > (LONG_MAX - digit) / 10)
+            {
+                printf("error: number too large for long\n");
+                return 1;
+            }
+
+            in_rtime = in_rtime * 10 + digit;
         }
+
+        printf("%ld\n%c\n", in_rtime, in_ftime);
+
+        switch (in_ftime)
+        {
+            case 'M':
+                printf("default\n");
+                break;
+            case 's':
+                printf("seconds\n");
+                break;
+            case 'm':
+                printf("minutes\n");
+                break;
+            case 'h':
+                printf("hours\n");
+                break;
+            case 'd':
+                printf("days\n");
+                break;
+            case 'w':
+                printf("weeks\n");
+                break;
+            case 'o':
+                printf("months\n");
+                break;
+            case 'y':
+                printf("years\n");
+                break;
+        }
+
+        // Get current data in seconds and then add specified seconds from argument.
+        // char *end;
+        // long in_rtime = strtol(argv[3], &end, 10);
+        // if (*end != '\0')
+        // {
+        //     printf("error: command %s argument is not a valid number\n", CMD_REMIND0);
+        //     return 1;
+        // }
         time_t ctime = time(NULL);
         time_t reminder_time = ctime + in_rtime;
 

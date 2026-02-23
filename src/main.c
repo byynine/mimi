@@ -94,6 +94,9 @@ int main(int argc, char *argv[])
         long in_rtime = 0;
         char in_ftime = 'M';
 
+        // TODO: this has overflow problems (`long`)
+        //       parser also allows input like `10hm`
+
         // Parse argv[3] (reminder time).
         for (size_t i = 0; argv[3][i] != '\0'; i++)
         {
@@ -122,8 +125,6 @@ int main(int argc, char *argv[])
             in_rtime = in_rtime * 10 + digit;
         }
 
-        printf("%ld\n%c\n", in_rtime, in_ftime);
-
         switch (in_ftime)
         {
             case 'M':
@@ -134,21 +135,27 @@ int main(int argc, char *argv[])
                 break;
             case 'm':
                 printf("minutes\n");
+                in_rtime *= 60;
                 break;
             case 'h':
                 printf("hours\n");
+                in_rtime *= 3600;
                 break;
             case 'd':
                 printf("days\n");
+                in_rtime *= 3600 * 24;
                 break;
             case 'w':
                 printf("weeks\n");
+                in_rtime *= 3600 * 60 * 24 * 7;
                 break;
             case 'o':
                 printf("months\n");
+                in_rtime *= 3600 * 60 * 24 * 30;
                 break;
             case 'y':
                 printf("years\n");
+                in_rtime *= 3600 * 60 * 24 * 365;
                 break;
         }
 

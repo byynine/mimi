@@ -128,33 +128,25 @@ int main(int argc, char *argv[])
         switch (in_ftime)
         {
             case 'M':
-                printf("default\n");
                 break;
             case 's':
-                printf("seconds\n");
                 break;
             case 'm':
-                printf("minutes\n");
                 in_rtime *= 60;
                 break;
             case 'h':
-                printf("hours\n");
                 in_rtime *= 3600;
                 break;
             case 'd':
-                printf("days\n");
                 in_rtime *= 3600 * 24;
                 break;
             case 'w':
-                printf("weeks\n");
                 in_rtime *= 3600 * 60 * 24 * 7;
                 break;
             case 'o':
-                printf("months\n");
                 in_rtime *= 3600 * 60 * 24 * 30;
                 break;
             case 'y':
-                printf("years\n");
                 in_rtime *= 3600 * 60 * 24 * 365;
                 break;
         }
